@@ -11,5 +11,4 @@ public class CharacterManager : MonoBehaviour {
 
 	[SerializeField]
 	public Character[] characters = null;
-
 }
