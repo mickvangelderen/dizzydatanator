@@ -4,9 +4,6 @@ using UnityEngine.SceneManagement;
 public class FallingTextController : MonoBehaviour {
 
 	[SerializeField]
-	GameObject container = null;
-
-	[SerializeField]
 	Vector3 motion;
 
 	string word = "Undefined";

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class PlaySceneController: MonoBehaviour {
 
 	[SerializeField]
@@ -9,12 +10,22 @@ public class PlaySceneController: MonoBehaviour {
 	[SerializeField]
 	GameObject[] scanHerkenPrefabs = null;
 
-	// Use this for initialization
+	[SerializeField]
+	CharacterManager characterManager = null;
+
+	AudioSource audioSource;
+
+	[SerializeField]
+	AudioClip missAudio;
+
+	[SerializeField]
+	AudioClip hitAudio;
+
 	void Start () {
-		image.GetComponent<Image>().sprite = Words.sprites[Words.selected];
+		audioSource = GetComponent<AudioSource>();
+		image.GetComponent<Image>().sprite = characterManager.characters[Words.selected].sprite;
 	}
 	
-	// Update is called once per frame
 	void Update () {
 		if (Input.GetKeyDown(KeyCode.A)) {
 		Words.input += "a";
@@ -132,8 +143,11 @@ public class PlaySceneController: MonoBehaviour {
 		}
 		if (Input.GetKeyDown(KeyCode.Return)) {
 			string input = Words.input;
+			bool hit = false;
 			foreach (FallingTextController c in FindObjectsOfType<FallingTextController>()) {
-				c.CompleteInput(input);
+				if (c.CompleteInput(input)) {
+					hit = true;
+				}
 			}
 			Words.input = "";
 			GameObject scanHerkenPrefab = scanHerkenPrefabs[Random.Range(0, scanHerkenPrefabs.Length)];
@@ -142,6 +156,11 @@ public class PlaySceneController: MonoBehaviour {
 				Random.Range(-4.0f, 4.0f),
 				0
 			), Quaternion.identity);
+			if (hit) {
+				audioSource.PlayOneShot(hitAudio);
+			} else {
+				audioSource.PlayOneShot(missAudio);
+			}
 		}
 	}
 

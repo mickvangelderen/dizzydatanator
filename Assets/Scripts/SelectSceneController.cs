@@ -1,36 +1,46 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(AudioSource))]
 public class SelectSceneController : MonoBehaviour {
 
 	[SerializeField]
 	private GameObject characterSelectImagePrefab = null;
-
+	
 	[SerializeField]
-	private Sprite[] sprites = null;
+	private Text characterSelectText = null;
 
 	private GameObject[] selectObjects = null;
+
+	[SerializeField]
+	private CharacterManager characterManager = null;
 
 	private Vector3 LEFT = new Vector3(-20, 0, 0);
 	private Vector3 RIGHT = new Vector3(20, 0, 0);
 	private Vector3 CENTER = Vector3.zero;
 
+	[SerializeField]
+	AudioClip inputAudio;
+
+	AudioSource audioSource;
 	// Use this for initialization
 	void Start () {
-		selectObjects = new GameObject[sprites.Length];
+		audioSource = GetComponent<AudioSource>();
 
-		Words.sprites = sprites;
+		selectObjects = new GameObject[characterManager.characters.Length];
 
 		int i = 0;
-		foreach (Sprite sprite in sprites) {
+		foreach (CharacterManager.Character character in characterManager.characters) {
 			GameObject selectImage = Instantiate(characterSelectImagePrefab, LEFT, Quaternion.identity);
 			SpriteRenderer renderer = selectImage.GetComponent<SpriteRenderer>();
-			renderer.sprite = sprite;
+			renderer.sprite = character.sprite;
 			selectObjects[i] = selectImage;
 			i++;
 		}
 
 		selectObjects[Words.selected].GetComponent<CharacterSelectImage>().JumpTo(CENTER);
+		characterSelectText.text = characterManager.characters[Words.selected].name;
 	}
 	
 	// Update is called once per frame
@@ -43,16 +53,21 @@ public class SelectSceneController : MonoBehaviour {
 				selectObjects[newSelected].GetComponent<CharacterSelectImage>().JumpTo(RIGHT);
 				selectObjects[newSelected].GetComponent<CharacterSelectImage>().SlideTo(CENTER);
 				Words.selected = newSelected;
+				characterSelectText.text = characterManager.characters[Words.selected].name;
+				audioSource.PlayOneShot(inputAudio);
 			} else if (d < 0) {
 				selectObjects[Words.selected].GetComponent<CharacterSelectImage>().SlideTo(RIGHT);
 				int newSelected = Mod(Words.selected - 1, selectObjects.Length);
 				selectObjects[newSelected].GetComponent<CharacterSelectImage>().JumpTo(LEFT);
 				selectObjects[newSelected].GetComponent<CharacterSelectImage>().SlideTo(CENTER);
 				Words.selected = newSelected;
+				characterSelectText.text = characterManager.characters[Words.selected].name;
+				audioSource.PlayOneShot(inputAudio);
 			}
 		}
 
         if (Input.GetButtonDown("Submit")) {
+			audioSource.PlayOneShot(inputAudio);
             SceneManager.LoadScene("Play");
         }
 	}
